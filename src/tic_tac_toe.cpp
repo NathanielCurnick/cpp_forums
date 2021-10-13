@@ -5,7 +5,9 @@ using std::cout;
 
 char *make_board()
 {
+    static bool board_initialised;
     static char board[3][3] = {{'1', '2', '3'}, {'4', '5', '6'}, {'7', '8', '9'}};
+
     return *board;
 }
 
@@ -176,13 +178,12 @@ int computer_move(char *board, bool human_crosses)
     // ! shouldn't and won't are two different things
 }
 
-void play_human()
+void play_human(char *board)
 {
     // State variables
     bool player1_go = true;
     bool game_running = true;
     // Create board
-    char *board = make_board();
 
     while (game_running)
     {
@@ -311,20 +312,22 @@ void play_computer()
             break;
         }
     }
+    delete[] board;
 }
 int main()
 {
     cout << "Welcome to tic-tac-toe \n";
     cout << "Would you like to play a human or a computer? \n";
     cout << "1 - human | 2 - computer \n";
+    char *board = make_board();
     int choice;
     cin >> choice;
     if (choice == 1)
     {
-        play_human();
+        play_human(board);
     }
     else if (choice == 2)
     {
-        play_computer();
+        play_computer(board);
     }
 }
