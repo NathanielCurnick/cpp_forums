@@ -1,4 +1,5 @@
 #include <iostream>
+#include <time.h>
 using std::cin;
 using std::cout;
 
@@ -105,7 +106,77 @@ bool board_full(char *board)
     return full;
 }
 
-int main()
+int computer_move(char *board, bool human_crosses)
+{
+    // TODO computer will block human if about to win
+    // Check for corners
+    // Corner spaces are 1, 3, 7, 9
+    // TODO try and pick optimal corners i.e. opposite to human
+
+    char character;
+    if (human_crosses)
+        character = 'O';
+    else
+        character = 'X';
+
+    if (*(board) != 'X' && *(board) != 'O')
+    {
+        *(board) = character;
+        return 0;
+    }
+    if (*(board + 2) != 'X' && *(board + 2) != 'O')
+    {
+        *(board + 2) = character;
+        return 0;
+    }
+    if (*(board + 6) != 'X' && *(board + 6) != 'O')
+    {
+        *(board + 6) = character;
+        return 0;
+    }
+    if (*(board + 8) != 'X' && *(board + 8) != 'O')
+    {
+        *(board + 8) = character;
+        return 0;
+    }
+
+    // If no corners then edges
+    // edges are 2, 4, 6, 8
+
+    if (*(board + 1) != 'X' && *(board + 1) != 'O')
+    {
+        *(board + 1) = character;
+        return 0;
+    }
+    if (*(board + 3) != 'X' && *(board + 3) != 'O')
+    {
+        *(board + 3) = character;
+        return 0;
+    }
+    if (*(board + 5) != 'X' && *(board + 5) != 'O')
+    {
+        *(board + 5) = character;
+        return 0;
+    }
+    if (*(board + 7) != 'X' && *(board + 7) != 'O')
+    {
+        *(board + 7) = character;
+        return 0;
+    }
+
+    // If no edges then centre
+    // centre is 5
+    if (*(board + 4) != 'X' && *(board + 4) != 'O')
+    {
+        *(board + 4) = character;
+        return 0;
+    }
+
+    return 1; // In the off chance this fails, although, it shouldn't
+    // ! shouldn't and won't are two different things
+}
+
+void play_human()
 {
     // State variables
     bool player1_go = true;
@@ -165,5 +236,97 @@ int main()
             game_running = false;
             break;
         }
+    }
+    delete board;
+}
+
+void play_computer()
+{
+    // State variables
+    bool human_go = true;
+    bool game_running = true;
+    // Create board
+    char *board = make_board();
+
+    bool human_crosses;
+    srand(time(NULL));
+    int goal = rand() % 100 + 1;
+
+    if (goal > 50)
+        human_crosses = true;
+    else
+        human_crosses = false;
+
+    while (game_running)
+    {
+        draw_board(board);
+
+        // Get input
+        if (human_go)
+        {
+            cout << "Hooooooooooooooooman, please select your move \n";
+            int input;
+            cin >> input;
+
+            // Update board
+
+            int board_change = change_board(board, input, human_go);
+            if (board_change == 1)
+            {
+                cout << "Sorry that place is already taken \n";
+                continue;
+            }
+            else
+            {
+                human_go = !human_go;
+            }
+        }
+        else
+        {
+            computer_move(board, human_crosses);
+            human_go = !human_go;
+        }
+
+        // Check if board is full
+
+        if (board_full(board))
+        {
+            draw_board(board);
+            cout << "The game is over" << std::endl;
+            game_running = false;
+            break;
+        }
+
+        // Give message if someone wins
+        int won = game_won(board);
+        if (won == 1)
+        {
+            cout << "Player 1 wins" << std::endl;
+            game_running = false;
+            break;
+        }
+        else if (won == 2)
+        {
+            cout << "Player 2 wins" << std::endl;
+            game_running = false;
+            break;
+        }
+    }
+    delete board;
+}
+int main()
+{
+    cout << "Welcome to tic-tac-toe \n";
+    cout << "Would you like to play a human or a computer? \n";
+    cout << "1 - human | 2 - computer \n";
+    int choice;
+    cin >> choice;
+    if (choice == 1)
+    {
+        play_human();
+    }
+    else if (choice == 2)
+    {
+        play_computer();
     }
 }
