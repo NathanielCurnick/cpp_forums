@@ -237,7 +237,6 @@ void play_human()
             break;
         }
     }
-    delete board;
 }
 
 void play_computer()
@@ -312,7 +311,6 @@ void play_computer()
             break;
         }
     }
-    delete board;
 }
 int main()
 {
