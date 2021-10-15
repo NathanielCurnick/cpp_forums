@@ -5,10 +5,17 @@ using std::cout;
 
 char *make_board()
 {
-    static bool board_initialised;
     static char board[3][3] = {{'1', '2', '3'}, {'4', '5', '6'}, {'7', '8', '9'}};
 
     return *board;
+}
+
+void reset_board(char *board)
+{
+    for (int i = 0; i < 9; i++)
+    {
+        *(board + i) = i + 1 + '0';
+    }
 }
 
 void draw_board(char *board)
@@ -18,12 +25,12 @@ void draw_board(char *board)
     cout << *(board + 6) << "|" << *(board + 7) << "|" << *(board + 8) << std::endl;
 }
 
-int change_board(char *board, int move, bool player1_move)
+int change_board(char *board, int move, bool player_using_crosses)
 {
 
     if (*(board + move - 1) != 'X' && *(board + move - 1) != 'O')
     {
-        if (player1_move)
+        if (player_using_crosses)
             *(board + move - 1) = 'X';
         else
             *(board + move - 1) = 'O';
@@ -35,6 +42,8 @@ int change_board(char *board, int move, bool player1_move)
         cout << *(board + move - 1) << " " << *(board + move - 1) << std::endl;
         return 1;
     }
+
+    return 2;
 }
 
 int game_won(char *board)
@@ -59,6 +68,7 @@ int game_won(char *board)
     {
         if (*(board + i) == 'X' && *(board + i + 1) == 'X' && *(board + i + 2) == 'X')
         {
+            cout << "Win condition 1";
             return 1;
         }
         else if (*(board + i) == 'O' && *(board + i + 1) == 'O' && *(board + i + 2) == 'O')
@@ -73,6 +83,7 @@ int game_won(char *board)
     {
         if (*(board + i) == 'X' && *(board + i + 3) == 'X' && *(board + i + 6) == 'X')
         {
+            cout << "Win condition 2";
             return 1;
         }
         else if (*(board + i) == 'O' && *(board + i + 3) == 'O' && *(board + i + 6) == 'O')
@@ -83,7 +94,7 @@ int game_won(char *board)
 
     // Check diagonals
 
-    if ((*(board) == 'X' && *(board + 4) == 'X' && *(board + 8) == 'X') || (*(board + 2) == 'X' && *(board + 4) == 'X' && *(board + 6)))
+    if ((*(board) == 'X' && *(board + 4) == 'X' && *(board + 8) == 'X') || (*(board + 2) == 'X' && *(board + 4) == 'X' && *(board + 6) == 'X'))
     {
         return 1;
     }
@@ -175,7 +186,6 @@ int computer_move(char *board, bool human_crosses)
     }
 
     return 1; // In the off chance this fails, although, it shouldn't
-    // ! shouldn't and won't are two different things
 }
 
 void play_human(char *board)
@@ -183,10 +193,10 @@ void play_human(char *board)
     // State variables
     bool player1_go = true;
     bool game_running = true;
-    // Create board
 
     while (game_running)
     {
+        cout << "DEBUG \n";
         draw_board(board);
 
         // Get input
@@ -200,18 +210,24 @@ void play_human(char *board)
         }
         int input;
         cin >> input;
-
+        // ! Bad input causes infinite loop (bad input basically meaning a char)
         // Update board
 
         int board_change = change_board(board, input, player1_go);
         if (board_change == 1)
         {
             cout << "Sorry that place is already taken \n";
+
             continue;
         }
-        else
+        else if (board_change == 0)
         {
             player1_go = !player1_go;
+        }
+        else if (board_change == 2)
+        {
+            cout << "Sorry, I didn't recognise that input \n";
+            continue;
         }
         // Check if board is full
 
@@ -220,33 +236,30 @@ void play_human(char *board)
             draw_board(board);
             cout << "The game is over" << std::endl;
             game_running = false;
-            break;
         }
 
         // Give message if someone wins
         int won = game_won(board);
         if (won == 1)
         {
+            draw_board(board);
             cout << "Player 1 wins" << std::endl;
             game_running = false;
-            break;
         }
         else if (won == 2)
         {
+            draw_board(board);
             cout << "Player 2 wins" << std::endl;
             game_running = false;
-            break;
         }
     }
 }
 
-void play_computer()
+void play_computer(char *board)
 {
     // State variables
     bool human_go = true;
     bool game_running = true;
-    // Create board
-    char *board = make_board();
 
     bool human_crosses;
     srand(time(NULL));
@@ -270,7 +283,7 @@ void play_computer()
 
             // Update board
 
-            int board_change = change_board(board, input, human_go);
+            int board_change = change_board(board, input, human_crosses);
             if (board_change == 1)
             {
                 cout << "Sorry that place is already taken \n";
@@ -299,35 +312,55 @@ void play_computer()
 
         // Give message if someone wins
         int won = game_won(board);
-        if (won == 1)
+        if (won == 1 || won == 2)
         {
-            cout << "Player 1 wins" << std::endl;
-            game_running = false;
-            break;
-        }
-        else if (won == 2)
-        {
-            cout << "Player 2 wins" << std::endl;
+            draw_board(board);
+            switch (!human_go)
+            {
+            case true:
+                cout << "Hoooman wins \n";
+                break;
+            case false:
+                cout << "Computer wins \n";
+                break;
+            }
             game_running = false;
             break;
         }
     }
-    delete[] board;
 }
 int main()
 {
     cout << "Welcome to tic-tac-toe \n";
-    cout << "Would you like to play a human or a computer? \n";
-    cout << "1 - human | 2 - computer \n";
+
     char *board = make_board();
     int choice;
-    cin >> choice;
-    if (choice == 1)
+
+    bool running = true;
+    while (running)
     {
-        play_human(board);
+        cout << "Would you like to play a human or a computer? \n";
+        cout << "1 - human | 2 - computer | 3 - stop playing\n";
+        cin >> choice;
+        if (choice == 1)
+        {
+            play_human(board);
+        }
+        else if (choice == 2)
+        {
+            play_computer(board);
+        }
+        else if (choice == 3)
+        {
+            cout << "Thanks for playing! \n";
+            running = false;
+            break;
+        }
+        else
+            cout << "Sorry, I didn't recognise that \n";
+
+        reset_board(board);
     }
-    else if (choice == 2)
-    {
-        play_computer(board);
-    }
+
+    // TODO change how board is generated
 }
