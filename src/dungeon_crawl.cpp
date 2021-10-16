@@ -47,20 +47,20 @@ int set_player(char *board)
     return place;
 }
 
-void move_player(int place, char *board)
+int move_player(int place, char *board)
 {
     bool moving = true;
-    int choice;
+    char choice;
 
     while (moving)
     {
         cout << "Choose your move" << std::endl;
-        cout << "1 - up | 2 - down | 3 - left | 4 - right" << std::endl;
+        cout << "w - up | s - down | a - left | d - right" << std::endl;
         cin >> choice;
 
         switch (choice)
         {
-        case 1:
+        case 'w':
             if (place - 10 < 0)
             {
                 cout << "Sorry that is naht a valid choice \n";
@@ -71,16 +71,67 @@ void move_player(int place, char *board)
                 *(board + place) = '0';
                 place = place - 10;
                 *(board + place) = 'G';
-                // TODO
+                moving = false;
             }
+            break;
+        case 's':
+            if (place + 10 > 99)
+            {
+                cout << "Sorry that is naht a valid choice \n";
+            }
+            else
+            {
+                *(board + place) = '0';
+                place = place + 10;
+                *(board + place) = 'G';
+                moving = false;
+            }
+            break;
+        case 'a':
+            if (place % 10 == 0)
+            {
+                cout << "Sorry that is naht a valid choice \n";
+            }
+            else
+            {
+                *(board + place) = '0';
+                place = place - 1;
+                *(board + place) = 'G';
+                moving = false;
+            }
+            break;
+        case 'd':
+            if (place % 10 == 9)
+            {
+                cout << "Sorry that is not a valid choice \n";
+            }
+            else
+            {
+                *(board + place) = '0';
+                place = place + 1;
+                *(board + place) = 'G';
+                moving = false;
+            }
+            break;
+        default:
+            cout << "Sorry I don't know that command \n";
+            break;
         }
     }
+
+    return place;
 }
+
+// TODO
 
 int main()
 {
     char *board = make_board();
     set_traps(board);
     int place = set_player(board);
+    draw_board(board);
+
+    move_player(place, board);
+
     draw_board(board);
 }
