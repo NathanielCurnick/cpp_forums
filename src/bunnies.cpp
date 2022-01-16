@@ -183,24 +183,31 @@ void del_bunny(Bunny *before)
         before->next = temp->next;
         cout << "About to delete" << std::endl;
         delete temp;
-    }
+    } 
 }
 
 void kill_elderly(BunnyCollection &bc)
 {
     // Bunnies older than 10 will die
     Bunny *loop_ptr = bc;
-    while (loop_ptr != NULL)
+    while (loop_ptr->next != NULL)
     {
-        Bunny *temp = loop_ptr->next;
-        cout << "made temp" << std::endl;
-        if (temp->age > 4)
+        if (loop_ptr->next->age > 10)
         {
             del_bunny(loop_ptr);
         }
+    
+        if (loop_ptr-> next == NULL) {
+            break;
+        }
 
-        loop_ptr = loop_ptr->next;
+        if (loop_ptr->next->age <= 10) {
+            loop_ptr = loop_ptr->next;
+
+        }
     }
+
+    cout << "Got to the end of elderly killing" << std::endl;
 }
 
 int main()
@@ -215,7 +222,7 @@ int main()
     cout << "Initial Bunnies!" << std::endl;
     print_bunnies(bc);
 
-    for (int i = 0; i < 10; i++)
+    for (int i = 0; i < 20; i++)
     {
         cout << "=====================" << std::endl;
         cout << "Turn " << i << std::endl;
@@ -228,4 +235,5 @@ int main()
         cout << "Successfully culled" << std::endl;
         print_bunnies(bc);
     }
+    
 }
