@@ -122,7 +122,7 @@ int move_player(int place, char *board)
     return place;
 }
 
-// TODO
+// TODO turn this into full game
 
 int main()
 {
