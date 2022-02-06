@@ -47,6 +47,11 @@ int set_player(char *board)
     return place;
 }
 
+bool check_trap(char *board, int place)
+{
+    return *(board + place) == 'T';
+}
+
 int move_player(int place, char *board)
 {
     bool moving = true;
@@ -68,6 +73,13 @@ int move_player(int place, char *board)
             }
             else
             {
+                if (check_trap(board, place - 10))
+                {
+                    cout << "You died!\n";
+                    moving = false;
+                    place = -1;
+                    break;
+                }
                 *(board + place) = '0';
                 place = place - 10;
                 *(board + place) = 'G';
@@ -81,6 +93,13 @@ int move_player(int place, char *board)
             }
             else
             {
+                if (check_trap(board, place + 10))
+                {
+                    cout << "You died!\n";
+                    moving = false;
+                    place = -1;
+                    break;
+                }
                 *(board + place) = '0';
                 place = place + 10;
                 *(board + place) = 'G';
@@ -94,6 +113,13 @@ int move_player(int place, char *board)
             }
             else
             {
+                if (check_trap(board, place - 1))
+                {
+                    cout << "You died!\n";
+                    moving = false;
+                    place = -1;
+                    break;
+                }
                 *(board + place) = '0';
                 place = place - 1;
                 *(board + place) = 'G';
@@ -107,6 +133,13 @@ int move_player(int place, char *board)
             }
             else
             {
+                if (check_trap(board, place + 1))
+                {
+                    cout << "You died!\n";
+                    moving = false;
+                    place = -1;
+                    break;
+                }
                 *(board + place) = '0';
                 place = place + 1;
                 *(board + place) = 'G';
@@ -126,12 +159,21 @@ int move_player(int place, char *board)
 
 int main()
 {
+    bool running = true;
     char *board = make_board();
     set_traps(board);
     int place = set_player(board);
-    draw_board(board);
 
-    move_player(place, board);
+    while (running)
+    {
+        draw_board(board);
 
-    draw_board(board);
+        place = move_player(place, board);
+
+        if (place == -1)
+        {
+            cout << "GAME OVER\n";
+            running = false;
+        }
+    }
 }
